@@ -1,17 +1,17 @@
 const express = require("express");
 const app = express();
-const dotenv = require("dotenv");
+const dotenv = require("dotenv").config();
 const cors=require("cors");
+const port = process.env.PORT;
+const address = process.env.ADDRESS;
 
 const corsOptions={
-    origin:'http://localhost:3000',
+    origin:address,
     credentials:true,
     optionSuccessStatus:200,
 }
 app.use(cors(corsOptions));
 
-dotenv.config({ path: "./config.env" });
-const port = process.env.PORT;
 
 const db=require('./config/database')
 db.authenticate()
@@ -23,7 +23,6 @@ app.use(express.json());
 
 app.use(require('./routes/users'));
 app.use(require('./routes/posts'));
-app.use(require('./routes/draftPosts'));
 
 app.get("/", (req, res) => {
   res.send("homee page");
