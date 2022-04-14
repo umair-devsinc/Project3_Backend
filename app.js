@@ -19,14 +19,6 @@ db.authenticate()
 
 app.use(express.json());
 
-app.use(require("./routes/users"));
-app.use(require("./routes/posts"));
-app.use(require("./routes/comments"));
+app.use(require("./routes/index"));
 
-app.get("/", (req, res) => {
-  res.send("homee page");
-});
-
-app.listen(port, (req, res) => {
-  console.log(`listen ${port}`);
-});
+app.listen(port);

@@ -1,15 +1,10 @@
 const db = require("../models");
+const commentService = require("../services/commentService");
 
 const post = async (req, res) => {
   try {
-    const { text, uid, postId } = req.body;
-
-    const comment = await db.Comment.create({
-      text: text,
-      uid: uid,
-      postId: postId,
-    });
-    res.status(200).json({ msg: "you commented" });
+    const comment = await commentService.createComment(req.body);
+    res.status(200).send(comment);
   } catch (err) {
     res.status(400).json({ error: err });
   }
@@ -17,15 +12,7 @@ const post = async (req, res) => {
 
 const get = async (req, res) => {
   try {
-    const comments = await db.Post.findAll({
-      include: [
-        {
-          model: db.Comment,
-          include: [db.User],
-          required: true,
-        },
-      ],
-    });
+    const comments = await commentService.getComments();
 
     res.status(200).send(comments);
   } catch (err) {

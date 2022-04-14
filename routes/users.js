@@ -1,16 +1,12 @@
-const { Router } = require('express');
-const router=Router();
-const userController=require('../controllers/userController');
+const { Router } = require("express");
+const router = Router();
+const userController = require("../controllers/userController");
+const validation = require("../middleware/validation");
 
+router.post("/register", validation, userController.register);
 
-router.post('/register',userController.register);
+router.get("/signIn", userController.login);
 
-router.get('/signIn', userController.login);
+router.get("/user", userController.find);
 
-router.get('/user',userController.find);
-
-router.get('/logout', userController.logout);
-
-
-
-module.exports=router;
+module.exports = router;

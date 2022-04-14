@@ -1,16 +1,9 @@
 const db = require("../models");
-
+const postService = require("../services/postService");
 const post = async (req, res) => {
   try {
-    const { title, content, flag, uid } = req.body;
-
-    const post = await db.Post.create({
-      title: title,
-      content: content,
-      flag: flag,
-      uid: uid,
-    });
-    res.status(200).json({ msg: "post saved" });
+    const post = postService.createPost(req.body);
+    res.status(200).send(post);
   } catch (err) {
     res.status(400).json({ error: err });
   }
@@ -18,28 +11,7 @@ const post = async (req, res) => {
 
 const get = async (req, res) => {
   try {
-    let conditions = req.query.id
-      ? {
-          uid: req.query.id,
-          flag: false,
-        }
-      : {
-          flag: true,
-        };
-
-    const posts = await db.Post.findAll({
-      order: [["createdAt", "DESC"]],
-      include: [
-        {
-          model: db.Comment,
-          include: [db.User],
-          required: false,
-        },
-      ],
-      where: conditions,
-      offset: req.params["offset"],
-      limit: 2,
-    });
+    const posts = await postService.getPost(req.query.id, req.params["offset"]);
 
     res.status(200).send(posts);
   } catch (err) {
@@ -49,18 +21,7 @@ const get = async (req, res) => {
 
 const count = async (req, res) => {
   try {
-    let conditions = req.query.id
-      ? {
-          uid: req.query.id,
-          flag: false,
-        }
-      : {
-          flag: true,
-        };
-
-    const postCount = await db.Post.count({
-      where: conditions,
-    });
+    const postCount = await postService.getCount(req.query.id);
 
     res.status(200).send({ count: postCount });
   } catch (err) {
@@ -70,18 +31,9 @@ const count = async (req, res) => {
 
 const singlePost = async (req, res) => {
   try {
-    const posts = await db.Post.findOne({
-      where: { id: req.params["id"] },
-      include: [
-        {
-          model: db.Comment,
-          include: [db.User],
-          required: false,
-        },
-      ],
-    });
+    const post = await postService.getSinglePost(req.params["id"]);
 
-    res.status(200).send(posts);
+    res.status(200).send(post);
   } catch (err) {
     res.status(400).json({ error: err });
   }
@@ -89,50 +41,16 @@ const singlePost = async (req, res) => {
 
 const edit = async (req, res) => {
   try {
-    const { title, content } = req.body;
-
-    const posts = await db.Post.update(
-      {
-        title: title,
-        content: content,
-      },
-      {
-        where: {
-          id: req.params["id"],
-        },
-      }
-    );
-    res.status(200).send(posts);
+    const post = postService.editPost(req.params["id"], req.body);
+    res.status(200).send(post);
   } catch (err) {
     res.status(400).json({ error: err });
   }
 };
 
-const draft = async (req, res) => {
+const deletePost = async (req, res) => {
   try {
-    const posts = await db.Post.update(
-      {
-        flag: req.params["flag"],
-      },
-      {
-        where: {
-          id: req.params["id"],
-        },
-      }
-    );
-    res.status(200).send(posts);
-  } catch (err) {
-    res.status(400).json({ error: err });
-  }
-};
-
-const deletee = async (req, res) => {
-  try {
-    const posts = await db.Post.destroy({
-      where: {
-        id: req.query.id,
-      },
-    });
+    postService.deletePost(req.query.id);
 
     res.status(200).send("deleted");
   } catch (err) {
@@ -144,8 +62,7 @@ module.exports = {
   post,
   get,
   edit,
-  draft,
-  deletee,
+  deletePost,
   singlePost,
   count,
 };
